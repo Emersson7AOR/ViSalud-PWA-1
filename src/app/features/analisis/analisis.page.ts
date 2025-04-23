@@ -99,19 +99,22 @@ export class AnalisisPage {
   async compartirFormato(formato: string) {
     try {
       // Primero generamos el archivo según el formato
-      let archivoUrl = '';
+      let archivoBase64 = '';
       let nombreArchivo = '';
+      let tipoArchivo = '';
 
       switch (formato) {
         case 'jpg':
-          // Compartir la imagen directamente
-          archivoUrl = this.imagenUrl;
+          // Convertir la imagen a base64
+          archivoBase64 = await this.convertirImagenABase64(this.imagenUrl);
           nombreArchivo = 'imagen_medica.jpg';
+          tipoArchivo = 'image/jpeg';
           break;
         case 'pdf':
           // Generar PDF y compartir
-          archivoUrl = await this.generarPDF();
+          archivoBase64 = await this.generarPDF();
           nombreArchivo = 'imagen_medica.pdf';
+          tipoArchivo = 'application/pdf';
           break;
         case 'dicom':
           // En un caso real, aquí convertiríamos a DICOM
@@ -120,11 +123,19 @@ export class AnalisisPage {
           return;
       }
 
-      // Usar la API de compartir nativa
+      // Guardar el archivo temporalmente
+      const resultado = await Filesystem.writeFile({
+        path: nombreArchivo,
+        data: archivoBase64.split(',')[1], // Eliminar el prefijo data:application/...;base64,
+        directory: Directory.Cache,
+        recursive: true,
+      });
+
+      // Compartir el archivo guardado
       await Share.share({
         title: 'Imagen Médica',
         text: 'Compartiendo imagen médica en formato ' + formato.toUpperCase(),
-        url: archivoUrl,
+        files: [resultado.uri], // Usar el URI del archivo guardado
         dialogTitle: 'Compartir con',
       });
     } catch (error) {
@@ -133,15 +144,51 @@ export class AnalisisPage {
     }
   }
 
+  async convertirImagenABase64(url: string): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous'; // Importante para imágenes de otros dominios
+      
+      img.onload = () => {
+        // Crear un canvas para dibujar la imagen
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        
+        // Dibujar la imagen en el canvas
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0);
+          // Convertir a base64
+          const dataURL = canvas.toDataURL('image/jpeg', 0.95);
+          resolve(dataURL);
+        } else {
+          reject('No se pudo crear el contexto del canvas');
+        }
+      };
+      
+      img.onerror = (error) => {
+        reject('Error al cargar la imagen: ' + error);
+      };
+      
+      // Si la URL es relativa, convertirla a absoluta
+      if (url.startsWith('assets/')) {
+        img.src = window.location.origin + '/' + url;
+      } else {
+        img.src = url;
+      }
+    });
+  }
+
   async descargar() {
     try {
       // Generar PDF
-      const pdfUrl = await this.generarPDF();
+      const pdfBase64 = await this.generarPDF();
 
       // Guardar el archivo en el dispositivo
       const resultado = await Filesystem.writeFile({
         path: 'imagen_medica.pdf',
-        data: pdfUrl.split(',')[1], // Eliminar el prefijo data:application/pdf;base64,
+        data: pdfBase64.split(',')[1], // Eliminar el prefijo data:application/pdf;base64,
         directory: Directory.Documents,
         recursive: true,
       });
@@ -160,6 +207,8 @@ export class AnalisisPage {
 
       // Cargar la imagen
       const img = new Image();
+      img.crossOrigin = 'anonymous'; // Importante para imágenes de otros dominios
+      
       img.onload = () => {
         // Calcular dimensiones para ajustar la imagen al PDF
         const imgWidth = pdf.internal.pageSize.getWidth() - 20;
@@ -186,7 +235,12 @@ export class AnalisisPage {
         reject('Error al cargar la imagen: ' + error);
       };
 
-      img.src = this.imagenUrl;
+      // Si la URL es relativa, convertirla a absoluta
+      if (this.imagenUrl.startsWith('assets/')) {
+        img.src = window.location.origin + '/' + this.imagenUrl;
+      } else {
+        img.src = this.imagenUrl;
+      }
     });
   }
 
@@ -197,9 +251,5 @@ export class AnalisisPage {
       position: 'bottom',
     });
     await toast.present();
-  }
-
-  volver() {
-    this.navCtrl.back();
   }
 }
