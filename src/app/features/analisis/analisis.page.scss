@@ -1,0 +1,45 @@
+ion-header {
+  ion-toolbar {
+    --background: #3880ff;
+    --color: white;
+  }
+}
+
+.imagen-container {
+  background-color: white;
+  margin: 16px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+.imagen-medica {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.botones-container {
+  padding: 16px;
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+}
+
+.boton-accion {
+  --background: #f1f5ff;
+  --background-hover: #d7e3ff;
+  --color: #3880ff;
+  --border-radius: 28px;
+  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 0;
+  flex: 1;
+}
+
+ion-button ion-icon {
+  margin-right: 8px;
+}

@@ -1,0 +1,38 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="volver()">
+        <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Modo Análisis</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="imagen-container">
+    <img [src]="imagenUrl" alt="Imagen médica" class="imagen-medica" />
+  </div>
+
+  <div class="botones-container">
+    <ion-button
+      class="boton-accion"
+      expand="block"
+      shape="round"
+      (click)="compartir()"
+    >
+      <ion-icon slot="start" name="share-outline"></ion-icon>
+      Compartir
+    </ion-button>
+
+    <ion-button
+      class="boton-accion"
+      expand="block"
+      shape="round"
+      (click)="descargar()"
+    >
+      <ion-icon slot="start" name="download-outline"></ion-icon>
+      Descargar
+    </ion-button>
+  </div>
+</ion-content>

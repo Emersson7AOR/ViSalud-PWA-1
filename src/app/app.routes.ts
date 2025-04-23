@@ -7,7 +7,12 @@ export const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: 'home',
+    redirectTo: 'analisis',
     pathMatch: 'full',
+  },
+  {
+    path: 'analisis',
+    loadComponent: () =>
+      import('./features/analisis/analisis.page').then((m) => m.AnalisisPage),
   },
 ];
