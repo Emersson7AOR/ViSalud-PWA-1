@@ -7,39 +7,39 @@
 [![Capacitor](https://img.shields.io/badge/Capacitor-7.0-119EFF?logo=capacitor)](https://capacitorjs.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-4.9-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 
-A Progressive Web Application for medical image visualization and analysis
+Una Aplicación Web Progresiva para visualización y análisis de imágenes médicas
 
-[Features](#features) • [Installation](#installation) • [Usage](#usage) • [Development](#development) • [License](#license)
+[Características](#features) • [Instalación](#installation) • [Uso](#usage) • [Desarrollo](#development) • [Licencia](#license)
 
 </div>
 
-## 🚀 Overview
+## 🚀 Descripción General
 
-ViSalud-PWA is a Progressive Web Application (PWA) built with Angular 19 and Ionic, designed to facilitate medical image visualization, analysis, and sharing. It enables healthcare professionals to access, analyze, and share medical images in various formats, enhancing collaboration and medical diagnosis.
+ViSalud-PWA es una Aplicación Web Progresiva (PWA) construida con Angular 19 e Ionic, diseñada para facilitar la visualización, análisis y compartición de imágenes médicas. Permite a los profesionales de la salud acceder, analizar y compartir imágenes médicas en varios formatos, mejorando la colaboración y el diagnóstico médico.
 
-## ✨ Features
+## ✨ Características
 
-- 🔍 **Medical Image Visualization**: Intuitive interface for clear medical image viewing
-- 📤 **Image Sharing**: Share images in multiple formats (JPG, PDF, DICOM)
-- 💾 **Image Download**: Download images as PDF files
-- 📱 **Responsive Design**: Adapts seamlessly across devices
-- 🌐 **Offline Capabilities**: Full PWA functionality without internet connection
+- 🔍 **Visualización de Imágenes Médicas**: Interfaz intuitiva para una clara visualización de imágenes médicas
+- 📤 **Compartir Imágenes**: Comparte imágenes en múltiples formatos (JPG, PDF, DICOM)
+- 💾 **Descarga de Imágenes**: Descarga imágenes como archivos PDF
+- 📱 **Diseño Responsivo**: Se adapta perfectamente a todos los dispositivos
+- 🌐 **Capacidades Offline**: Funcionalidad PWA completa sin conexión a internet
 
-## 🛠️ Tech Stack
+## 🛠️ Stack Tecnológico
 
-- **Frontend Framework**: Angular 19
-- **Mobile Framework**: Ionic 8
-- **Native Platform**: Capacitor 7
-- **Language**: TypeScript
-- **PDF Generation**: jsPDF
+- **Framework Frontend**: Angular 19
+- **Framework Móvil**: Ionic 8
+- **Plataforma Nativa**: Capacitor 7
+- **Lenguaje**: TypeScript
+- **Generación PDF**: jsPDF
 
-### Capacitor Plugins
+### Plugins de Capacitor
 
-- `@capacitor/share`: Content sharing
-- `@capacitor/filesystem`: File system access
-- `@capacitor/app`: Native app integration
-- `@capacitor/haptics`: Tactile feedback
-- `@capacitor/keyboard`: Virtual keyboard management
-- `@capacitor/status-bar`: Status bar control
+- `@capacitor/share`: Compartir contenido
+- `@capacitor/filesystem`: Acceso al sistema de archivos
+- `@capacitor/app`: Integración con aplicación nativa
+- `@capacitor/haptics`: Retroalimentación táctil
+- `@capacitor/keyboard`: Gestión del teclado virtual
+- `@capacitor/status-bar`: Control de la barra de estado
 
-## 📁 Project Structure
+## 📁 Estructura del Proyecto
