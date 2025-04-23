@@ -1,0 +1,7 @@
+{
+  "name": "ViSalud-PWA",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
