@@ -44,36 +44,90 @@ ion-button ion-icon {
   margin-right: 8px;
 }
 
+// Estilos existentes (si los hay)
+
 .info-paciente {
-  background-color: white;
-  margin: 16px 16px 0 16px;
-  padding: 12px 16px;
-  border-radius: 8px 8px 0 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-bottom: 2px solid #3880ff;
+  padding: 15px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  margin: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .info-item {
-  display: flex;
   margin-bottom: 8px;
+  display: flex;
   align-items: center;
-}
-
-.info-item:last-child {
-  margin-bottom: 0;
 }
 
 .info-label {
   font-weight: bold;
-  color: #3880ff;
+  color: var(--ion-color-primary);
+  margin-right: 8px;
   min-width: 80px;
 }
 
 .info-valor {
-  color: #333;
+  color: var(--ion-color-dark);
 }
 
 .imagen-container {
-  margin-top: 0;
-  border-radius: 0 0 8px 8px;
+  display: flex;
+  justify-content: center;
+  margin: 15px 0;
+  padding: 0 10px;
+}
+
+.imagen-medica {
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.botones-container {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.boton-accion {
+  --border-radius: 8px;
+}
+
+// Estilos para la visualización DICOM
+.dicom-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 10px;
+}
+
+.preview-container, .video-container {
+  margin-bottom: 20px;
+}
+
+.loading-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10px;
+  color: #666;
+  
+  ion-spinner {
+    margin-bottom: 8px;
+  }
+}
+
+video {
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+h3 {
+  margin-bottom: 10px;
+  font-weight: 500;
+  color: var(--ion-color-primary);
+  padding-left: 10px;
 }

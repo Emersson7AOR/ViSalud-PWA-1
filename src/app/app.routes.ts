@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
 
 export const routes: Routes = [
   {
@@ -15,4 +16,9 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/analisis/analisis.page').then((m) => m.AnalisisPage),
   },
+];
+
+// Exportamos los proveedores para la aplicación
+export const appProviders = [
+  provideHttpClient()
 ];

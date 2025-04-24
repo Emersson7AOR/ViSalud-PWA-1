@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
   IonHeader,
   IonToolbar,
@@ -11,6 +11,7 @@ import {
   ActionSheetController,
   ToastController,
   NavController,
+  IonSpinner,
 } from '@ionic/angular/standalone';
 import { CommonModule, DatePipe } from '@angular/common';
 import { addIcons } from 'ionicons';
@@ -26,8 +27,10 @@ import { Share } from '@capacitor/share';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { jsPDF } from 'jspdf';
-
+import { ActivatedRoute } from '@angular/router';
 import { FileOpener } from '@capacitor-community/file-opener';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { DicomService, DicomPreviewData } from './services/dicom.service';
 
 @Component({
   selector: 'app-analisis',
@@ -45,18 +48,32 @@ import { FileOpener } from '@capacitor-community/file-opener';
     IonIcon,
     IonBackButton,
     IonButtons,
+    IonSpinner,
   ],
 })
-export class AnalisisPage {
-  imagenUrl: string = './assets/00001.jpg'; // Ruta actualizada a la imagen
+export class AnalisisPage implements OnInit {
+  imagenUrl: string = 'assets/00001.jpg'; // Ruta a la imagen de muestra
   nombrePaciente: string = 'Juan Pérez García'; // Nombre del paciente (ejemplo)
   tipoEstudio: string = 'Radiografía de Tórax'; // Tipo de estudio (ejemplo)
   fechaEstudio: Date = new Date(); // Fecha del estudio (actual por defecto)
 
+  // Propiedades para DICOM
+  studyUID: string = '1.2.840.113845.13.40033.369726140.1042936401177';
+  seriesUID: string = '1.2.840.113845.13.40033.369726140.1042992009090';
+  serverUrl: string = 'http://192.168.18.127:5000';
+
+  previewImageSrc: string = '';
+  videoSrc: string = '';
+  isVideoLoading: boolean = true;
+  hasVideo: boolean = false;
+
   constructor(
     private actionSheetCtrl: ActionSheetController,
     private toastCtrl: ToastController,
-    private navCtrl: NavController
+    private navCtrl: NavController,
+    private sanitizer: DomSanitizer,
+    private route: ActivatedRoute,
+    private dicomService: DicomService
   ) {
     addIcons({
       arrowBack,
@@ -66,6 +83,68 @@ export class AnalisisPage {
       imageOutline,
       filmOutline,
     });
+  }
+
+  ngOnInit() {
+    // Obtener parámetros de la URL si existen
+    this.route.params.subscribe((params) => {
+      if (params['studyUID']) {
+        this.studyUID = params['studyUID'];
+      }
+      if (params['seriesUID']) {
+        this.seriesUID = params['seriesUID'];
+      }
+      this.loadDicomData();
+    });
+  }
+
+  loadDicomData() {
+    // Reemplazar puntos por guiones bajos como en el ejemplo
+    const formattedStudyUID = this.studyUID.split('.').join('_');
+    const formattedSeriesUID = this.seriesUID.split('.').join('_');
+
+    console.log('Cargando datos DICOM:', formattedStudyUID, formattedSeriesUID);
+
+    this.dicomService.getDicomPreview(this.studyUID, this.seriesUID).subscribe({
+      next: (data: DicomPreviewData) => {
+        console.log('Datos DICOM recibidos:', data);
+
+        if (data.preview_base64) {
+          // Usar directamente la URL de la imagen del servidor
+          this.previewImageSrc = data.preview_base64;
+          this.imagenUrl = data.preview_base64; // Actualizar la imagen principal
+          console.log(
+            'URL de imagen cargada:',
+            this.previewImageSrc.substring(0, 50) + '...'
+          );
+        } else {
+          console.warn('No se recibió preview_base64 en la respuesta');
+        }
+
+        if (data.video_url) {
+          this.hasVideo = true;
+          this.videoSrc = `${this.serverUrl}${data.video_url}`;
+          console.log('URL de video cargada:', this.videoSrc);
+
+          // Verificar cuando el video está listo
+          setTimeout(() => {
+            this.isVideoLoading = false;
+          }, 1000); // Añadir un pequeño retraso para asegurar que el video comience a cargar
+        } else {
+          console.warn('No se recibió video_url en la respuesta');
+          this.hasVideo = false;
+          this.isVideoLoading = false;
+        }
+      },
+      error: (err) => {
+        console.error('Error al cargar la serie DICOM:', err);
+        this.isVideoLoading = false;
+      },
+    });
+  }
+
+  getSafeUrl(url: string): SafeResourceUrl {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
   async compartir() {

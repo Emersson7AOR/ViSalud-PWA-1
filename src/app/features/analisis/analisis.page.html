@@ -1,14 +1,3 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-button>
-        <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-title>Modo Análisis</ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content>
   <div class="info-paciente">
     <div class="info-item">
@@ -25,8 +14,33 @@
     </div>
   </div>
 
-  <div class="imagen-container">
-    <img [src]="imagenUrl" alt="Imagen médica" class="imagen-medica" />
+  <!-- Contenedor de imagen DICOM -->
+  <div class="dicom-container">
+    <!-- Imagen de vista previa (siempre visible) -->
+    <div class="preview-container" *ngIf="previewImageSrc">
+      <div class="imagen-container">
+        <img
+          [src]="previewImageSrc"
+          alt="Imagen médica"
+          class="imagen-medica"
+        />
+      </div>
+
+      <div class="loading-message" *ngIf="isVideoLoading && hasVideo">
+        <ion-spinner name="dots"></ion-spinner>
+        <p>Cargando video completo...</p>
+      </div>
+    </div>
+
+    <!-- Video (visible solo cuando está cargado) -->
+    <div
+      class="video-container"
+      *ngIf="videoSrc && !isVideoLoading && hasVideo"
+    >
+      <video [src]="videoSrc" controls width="100%">
+        Tu navegador no soporta la reproducción de video.
+      </video>
+    </div>
   </div>
 
   <div class="botones-container">
