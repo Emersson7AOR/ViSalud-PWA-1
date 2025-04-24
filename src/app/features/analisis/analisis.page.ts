@@ -12,7 +12,7 @@ import {
   ToastController,
   NavController,
 } from '@ionic/angular/standalone';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { addIcons } from 'ionicons';
 import {
   arrowBack,
@@ -23,9 +23,11 @@ import {
   filmOutline,
 } from 'ionicons/icons';
 import { Share } from '@capacitor/share';
-
+import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { jsPDF } from 'jspdf';
+
+import { FileOpener } from '@capacitor-community/file-opener';
 
 @Component({
   selector: 'app-analisis',
@@ -34,6 +36,7 @@ import { jsPDF } from 'jspdf';
   standalone: true,
   imports: [
     CommonModule,
+    DatePipe,
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -45,7 +48,10 @@ import { jsPDF } from 'jspdf';
   ],
 })
 export class AnalisisPage {
-  imagenUrl: string = 'assets/00001.jpg'; // Ruta a la imagen de muestra
+  imagenUrl: string = './assets/00001.jpg'; // Ruta actualizada a la imagen
+  nombrePaciente: string = 'Juan Pérez García'; // Nombre del paciente (ejemplo)
+  tipoEstudio: string = 'Radiografía de Tórax'; // Tipo de estudio (ejemplo)
+  fechaEstudio: Date = new Date(); // Fecha del estudio (actual por defecto)
 
   constructor(
     private actionSheetCtrl: ActionSheetController,
@@ -148,13 +154,13 @@ export class AnalisisPage {
     return new Promise<string>((resolve, reject) => {
       const img = new Image();
       img.crossOrigin = 'anonymous'; // Importante para imágenes de otros dominios
-      
+
       img.onload = () => {
         // Crear un canvas para dibujar la imagen
         const canvas = document.createElement('canvas');
         canvas.width = img.width;
         canvas.height = img.height;
-        
+
         // Dibujar la imagen en el canvas
         const ctx = canvas.getContext('2d');
         if (ctx) {
@@ -166,11 +172,11 @@ export class AnalisisPage {
           reject('No se pudo crear el contexto del canvas');
         }
       };
-      
+
       img.onerror = (error) => {
         reject('Error al cargar la imagen: ' + error);
       };
-      
+
       // Si la URL es relativa, convertirla a absoluta
       if (url.startsWith('assets/')) {
         img.src = window.location.origin + '/' + url;
@@ -185,19 +191,77 @@ export class AnalisisPage {
       // Generar PDF
       const pdfBase64 = await this.generarPDF();
 
-      // Guardar el archivo en el dispositivo
-      const resultado = await Filesystem.writeFile({
-        path: 'imagen_medica.pdf',
-        data: pdfBase64.split(',')[1], // Eliminar el prefijo data:application/pdf;base64,
-        directory: Directory.Documents,
-        recursive: true,
-      });
+      // Nombre del archivo con timestamp para evitar sobrescrituras
+      const timestamp = new Date().getTime();
+      const nombreArchivo = `imagen_medica_${timestamp}.pdf`;
 
-      this.mostrarMensaje('PDF guardado en: ' + resultado.uri);
+      // En Android, guardar en la carpeta de descargas pública
+      let resultado: { uri: string };
+
+      if (Capacitor.getPlatform() === 'android') {
+        // En Android, intentamos guardar directamente en la carpeta de descargas
+        resultado = await Filesystem.writeFile({
+          path: `Download/${nombreArchivo}`,
+          data: pdfBase64.split(',')[1],
+          directory: Directory.ExternalStorage,
+          recursive: true,
+        });
+      } else {
+        // En otros sistemas, usamos el directorio de documentos
+        resultado = await Filesystem.writeFile({
+          path: nombreArchivo,
+          data: pdfBase64.split(',')[1],
+          directory: Directory.Documents,
+          recursive: true,
+        });
+      }
+
+      // Mostrar mensaje con más información
+      this.mostrarMensajeConAccion(
+        `PDF guardado en Descargas/${nombreArchivo}`,
+        'Ver archivo',
+        async () => {
+          // Intentar abrir el archivo
+          try {
+            await FileOpener.open({
+              filePath: resultado.uri,
+              contentType: 'application/pdf',
+            });
+          } catch (e) {
+            console.error('Error al abrir el archivo:', e);
+            this.mostrarMensaje(
+              'No se pudo abrir el archivo. Búscalo en tus descargas.'
+            );
+          }
+        }
+      );
     } catch (error) {
       console.error('Error al descargar:', error);
       this.mostrarMensaje('Error al descargar: ' + error);
     }
+  }
+
+  // Nuevo método para mostrar un mensaje con acción
+  async mostrarMensajeConAccion(
+    mensaje: string,
+    textoBoton: string,
+    accion: () => void
+  ) {
+    const toast = await this.toastCtrl.create({
+      message: mensaje,
+      duration: 5000,
+      position: 'bottom',
+      buttons: [
+        {
+          text: textoBoton,
+          role: 'info',
+          handler: () => {
+            accion();
+          },
+        },
+      ],
+    });
+    await toast.present();
   }
 
   async generarPDF(): Promise<string> {
@@ -208,23 +272,24 @@ export class AnalisisPage {
       // Cargar la imagen
       const img = new Image();
       img.crossOrigin = 'anonymous'; // Importante para imágenes de otros dominios
-      
       img.onload = () => {
+        // Añadir información del paciente
+        pdf.setFontSize(16);
+        pdf.setTextColor(56, 128, 255); // Color azul similar al de Ionic
+        pdf.text('Informe Médico', 10, 10);
+
+        pdf.setFontSize(12);
+        pdf.setTextColor(0, 0, 0); // Color negro para el texto normal
+        pdf.text(`Paciente: ${this.nombrePaciente}`, 10, 20);
+        pdf.text(`Estudio: ${this.tipoEstudio}`, 10, 30);
+        pdf.text(`Fecha: ${this.fechaEstudio.toLocaleDateString()}`, 10, 40);
+
         // Calcular dimensiones para ajustar la imagen al PDF
         const imgWidth = pdf.internal.pageSize.getWidth() - 20;
         const imgHeight = (img.height * imgWidth) / img.width;
 
-        // Añadir la imagen al PDF
-        pdf.addImage(img, 'JPEG', 10, 10, imgWidth, imgHeight);
-
-        // Añadir título y fecha
-        pdf.setFontSize(12);
-        pdf.text('Imagen Médica - Análisis', 10, imgHeight + 20);
-        pdf.text(
-          'Fecha: ' + new Date().toLocaleDateString(),
-          10,
-          imgHeight + 30
-        );
+        // Añadir la imagen al PDF (ajustando la posición Y para dejar espacio al encabezado)
+        pdf.addImage(img, 'JPEG', 10, 50, imgWidth, imgHeight);
 
         // Convertir a base64
         const pdfBase64 = pdf.output('datauristring');

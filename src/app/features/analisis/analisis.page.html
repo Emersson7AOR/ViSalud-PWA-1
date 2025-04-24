@@ -10,6 +10,21 @@
 </ion-header>
 
 <ion-content>
+  <div class="info-paciente">
+    <div class="info-item">
+      <span class="info-label">Paciente:</span>
+      <span class="info-valor">{{ nombrePaciente }}</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">Estudio:</span>
+      <span class="info-valor">{{ tipoEstudio }}</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">Fecha:</span>
+      <span class="info-valor">{{ fechaEstudio | date:'dd/MM/yyyy' }}</span>
+    </div>
+  </div>
+
   <div class="imagen-container">
     <img [src]="imagenUrl" alt="Imagen médica" class="imagen-medica" />
   </div>
