@@ -19,6 +19,4 @@ export const routes: Routes = [
 ];
 
 // Exportamos los proveedores para la aplicación
-export const appProviders = [
-  provideHttpClient()
-];
+export const appProviders = [provideHttpClient()];

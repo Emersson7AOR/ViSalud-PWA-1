@@ -103,7 +103,8 @@ ion-button ion-icon {
   padding: 10px;
 }
 
-.preview-container, .video-container {
+.preview-container,
+.video-container {
   margin-bottom: 20px;
 }
 
@@ -113,7 +114,7 @@ ion-button ion-icon {
   align-items: center;
   margin-top: 10px;
   color: #666;
-  
+
   ion-spinner {
     margin-bottom: 8px;
   }
